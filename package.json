@@ -9,7 +9,8 @@
 		"serve": "browser-sync start --server --files 'index.html' 'dist/*' 'js/*.js'",
 		"watch:sass": "sass --watch sass/style.scss:dist/style.css",
 		"watch": "npm-run-all --parallel serve watch:sass",
-		"lint:html": "html-validate \"index.html\""
+		"lint:html": "html-validate \"index.html\"",
+		"watch:browsersync": "browser-sync start --server --files \"css/*.css\" \"*.html\" \"js/*.js\""
 	},
 	"keywords": [],
 	"author": "",
