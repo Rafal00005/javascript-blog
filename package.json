@@ -7,10 +7,11 @@
 		"init-project": "mkdirp sass dist vendor js img && touch index.html sass/style.scss && npm run css",
 		"css": "sass sass/style.scss dist/style.css --source-map && postcss dist/style.css -o dist/style.css",
 		"serve": "browser-sync start --server --files 'index.html' 'dist/*' 'js/*.js'",
-		"watch:sass": "sass --watch sass/style.scss:dist/style.css",
-		"watch": "npm-run-all --parallel serve watch:sass",
+		"watch:sass": "sass --watch sass/style.scss:css/style.css --no-source-map",
+		"watch": "npm-run-all --parallel watch:browsersync watch:sass",
 		"lint:html": "html-validate \"index.html\"",
-		"watch:browsersync": "browser-sync start --server --files \"css/*.css\" \"*.html\" \"js/*.js\""
+		"watch:browsersync": "browser-sync start --server --files \"css/*.css\" \"*.html\" \"js/*.js\"",
+		"build:css": "sass sass/style.scss css/style.css --no-source-map && postcss css/style.css -o css/style.css"
 	},
 	"keywords": [],
 	"author": "",
