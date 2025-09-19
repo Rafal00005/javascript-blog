@@ -3,15 +3,19 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test:html": "html-validate \"index.html\"",
+		"test:js": "eslint js/",
+		"test": "npm-run-all test:*",
 		"init-project": "mkdirp sass dist vendor js img && touch index.html sass/style.scss && npm run css",
 		"css": "sass sass/style.scss dist/style.css --source-map && postcss dist/style.css -o dist/style.css",
 		"serve": "browser-sync start --server --files 'index.html' 'dist/*' 'js/*.js'",
 		"watch:sass": "sass --watch sass/style.scss:css/style.css --no-source-map",
-		"watch": "npm-run-all --parallel watch:browsersync watch:sass",
-		"lint:html": "html-validate \"index.html\"",
 		"watch:browsersync": "browser-sync start --server --files \"css/*.css\" \"*.html\" \"js/*.js\"",
-		"build:css": "sass sass/style.scss css/style.css --no-source-map && postcss css/style.css -o css/style.css"
+		"watch": "npm-run-all build:* -p watch:*",
+		"build:css": "sass sass/style.scss css/style.css --no-source-map && postcss css/style.css -o css/style.css",
+		"lint:html": "html-validate \"index.html\"",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix"
 	},
 	"keywords": [],
 	"author": "",
@@ -20,6 +24,7 @@
 	"devDependencies": {
 		"autoprefixer": "^10.4.21",
 		"browser-sync": "^3.0.4",
+		"eslint": "^8.56.0",
 		"html-validate": "^9.7.1",
 		"mkdirp": "^3.0.1",
 		"npm-run-all": "^4.1.5",
