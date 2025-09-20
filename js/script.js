@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // build HTML
       let html = '';
       for (const tag of articleTagsArray) {
+        // console.log('tag:', tag); // debug if needed
         html += `<li><a href="#tag-${tag}" data-tag="${tag}">${tag}</a></li>`;
       }
 
@@ -133,18 +134,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const articles = document.querySelectorAll(optArticleSelector);
 
     for (const article of articles) {
+      // read -> split -> filter
       const tags = (article.getAttribute('data-tags') || '')
+        .trim()
         .split(/\s+/)
         .filter(Boolean);
-      for (const tag of tags) counts.set(tag, (counts.get(tag) || 0) + 1);
+
+      // accumulate counts
+      for (const tag of tags) {
+        counts.set(tag, (counts.get(tag) || 0) + 1);
+      }
     }
 
     // Build an alphabetical list with counters
     const items = Array.from(counts.entries())
       .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([tag, count]) => `<li><a href="#tag-${tag}" data-tag="${tag}">${tag}</a> <span>(${count})</span></li>`)
+      .map(([tag, count]) =>
+        `<li><a href="#tag-${tag}" data-tag="${tag}">${tag}</a> <span>(${count})</span></li>`
+      )
       .join('');
 
+    // Inject into the right sidebar
     tagList.innerHTML = items;
 
     // Click behavior for sidebar tag links
