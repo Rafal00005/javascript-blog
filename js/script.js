@@ -3,47 +3,33 @@
 /* =========================
    Selectors / Options
    ========================= */
-const optArticleSelector = '.post';               // each article container
-const optTitleSelector = '.post-title';           // article title element
-const optTitleListSelector = '.titles';           // left sidebar list for titles
-const optTagListSelector = '.tags';               // right sidebar: global tags list
-const optAuthorsListSelector = '.authors';        // right sidebar: authors list
-const optArticleTagsSelector = '.post-tags .list';// inside article: UL for its tags
+const optArticleSelector = '.post';                // each article container
+const optTitleSelector = '.post-title';            // article title element
+const optTitleListSelector = '.titles';            // left sidebar list for titles
+const optTagListSelector = '.tags';                // right sidebar: global tags list
+const optAuthorsListSelector = '.authors';         // right sidebar: authors list
+const optArticleTagsSelector = '.post-tags .list'; // inside article: UL for its tags
+const optArticleAuthorSelector = '.post-author';   // inside article: wrapper for author
 
-/* Run AFTER the DOM is ready to avoid querying null elements */
+/* Run AFTER the DOM is ready */
 document.addEventListener('DOMContentLoaded', () => {
+
   /* ===============================================
-     Build the list of article titles (with filter)
-     filter = { tag?: string, author?: string }
+     Build the list of article titles (with optional filter)
+     Example: generateTitleLinks('[data-tags~="design"]')
      =============================================== */
-  function generateTitleLinks(filter = {}) {
+  function generateTitleLinks(customSelector = '') {
     const titleList = document.querySelector(optTitleListSelector);
     if (!titleList) return;
 
-    // Clear current list
+    // clear current list
     titleList.innerHTML = '';
 
-    // Collect all articles, then narrow by filters if provided
-    let articles = Array.from(document.querySelectorAll(optArticleSelector));
+    // collect articles using attribute selector if provided
+    const combinedSelector = optArticleSelector + customSelector;
+    const articles = document.querySelectorAll(combinedSelector);
 
-    // Filter by tag if requested
-    if (filter.tag) {
-      const tag = filter.tag;
-      articles = articles.filter(a =>
-        (a.getAttribute('data-tags') || '')
-          .split(/\s+/)
-          .filter(Boolean)
-          .includes(tag)
-      );
-    }
-
-    // Filter by author if requested
-    if (filter.author) {
-      const author = filter.author;
-      articles = articles.filter(a => a.getAttribute('data-author') === author);
-    }
-
-    // Build HTML for the titles list
+    // build HTML for the titles list
     let html = '';
     for (const article of articles) {
       const articleId = article.id;
@@ -53,11 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     titleList.innerHTML = html;
 
-    // Make title links clickable
+    // make title links clickable
     const links = titleList.querySelectorAll('a');
     links.forEach(link => link.addEventListener('click', titleClickHandler));
 
-    // Keep UI consistent after filtering
+    // keep UI consistent after filtering
     document.querySelectorAll('.post.active').forEach(el => el.classList.remove('active'));
     if (articles.length) {
       const first = articles[0];
@@ -76,15 +62,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function titleClickHandler(e) {
     e.preventDefault();
 
-    // Deactivate all title links
+    // deactivate all title links
     document.querySelectorAll('.titles a.active').forEach(a => a.classList.remove('active'));
-    // Activate the clicked link
+    // activate the clicked link
     this.classList.add('active');
 
-    // Deactivate currently active article(s)
+    // deactivate currently active article(s)
     document.querySelectorAll('.post.active').forEach(a => a.classList.remove('active'));
 
-    // Find & activate the target article
+    // find & activate the target article
     const selector = this.getAttribute('href'); // e.g. "#article-3"
     const target = selector && document.querySelector(selector);
     if (target) target.classList.add('active');
@@ -97,26 +83,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const articles = document.querySelectorAll(optArticleSelector);
 
     for (const article of articles) {
-      // find the <ul> for tags inside THIS article
       const tagsWrapper = article.querySelector(optArticleTagsSelector);
       if (!tagsWrapper) continue;
 
-      // read tags from data attribute
       const articleTags = article.getAttribute('data-tags') || '';
+      const articleTagsArray = articleTags.trim().split(/\s+/).filter(Boolean);
 
-      /* split tags into array */
-      const articleTagsArray = articleTags.trim().split(/\s+/);
-
-      // build HTML
       let html = '';
       for (const tag of articleTagsArray) {
-        // console.log('tag:', tag); // debug if needed
         html += `<li><a href="#tag-${tag}" data-tag="${tag}">${tag}</a></li>`;
       }
 
-      // inject + click handlers
       tagsWrapper.innerHTML = html;
-      
     }
   }
 
@@ -127,24 +105,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const tagList = document.querySelector(optTagListSelector);
     if (!tagList) return;
 
-    // Count how many times each tag appears across all articles
     const counts = new Map();
     const articles = document.querySelectorAll(optArticleSelector);
 
     for (const article of articles) {
-      // read -> split -> filter
       const tags = (article.getAttribute('data-tags') || '')
         .trim()
         .split(/\s+/)
         .filter(Boolean);
 
-      // accumulate counts
       for (const tag of tags) {
         counts.set(tag, (counts.get(tag) || 0) + 1);
       }
     }
 
-    // Build an alphabetical list with counters
     const items = Array.from(counts.entries())
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([tag, count]) =>
@@ -152,36 +126,58 @@ document.addEventListener('DOMContentLoaded', () => {
       )
       .join('');
 
-    // Inject into the right sidebar
     tagList.innerHTML = items;
-
-   
   }
 
   /* ==========================================================
-     Tag click handler (both inside articles and in sidebar)
+     Tag click handler (inside posts and in sidebar)
      ========================================================== */
   function tagClickHandler(event) {
     event.preventDefault();
-    
-    const clickedElement = this; // the <a> tou clicked
-    const href = clickedElement.getAttribute('href'); // e.g "#tag-design"
-    const tag = href.replace('#tag-' , ''); // e.g. "design"
-     
-    // 1) remove "active" from ALL tag links (both posts + sidebar)
-    document.querySelectorAll('a.active[data-tag]').forEach(a => a.classList.remove('active'));
-    
-    // 2) add "active" to ALL links that point to the same tag
-    document.querySelectorAll(`a[href="${href}"]`).forEach(a => a.classList.add('active'));
 
-    // 3) filter titles list by this tag
-    generateTitleLinks({tag});
+    const clickedElement = this;
+    const href = clickedElement.getAttribute('href');   // "#tag-xyz"
+    const tag = href.replace('#tag-', '');              // "xyz"
+
+    // remove "active" from ALL tag links
+    document
+      .querySelectorAll('a.active[href^="#tag-"]')
+      .forEach(a => a.classList.remove('active'));
+
+    // add "active" to ALL links that point to this tag
+    document
+      .querySelectorAll(`a[href="${href}"]`)
+      .forEach(a => a.classList.add('active'));
+
+    // filter titles list by this tag
+    generateTitleLinks(`[data-tags~="${tag}"]`);
   }
 
   function addClickListenersToTags() {
-    document.querySelectorAll('[data-tag]').forEach(link =>
-      link.addEventListener('click' , tagClickHandler)
-    );
+    document
+      .querySelectorAll('a[data-tag]')
+      .forEach(link => link.addEventListener('click', tagClickHandler));
+  }
+
+  /* ==========================================================
+     Article-level author: generate author link inside each article
+     ========================================================== */
+  function generateAuthors() {
+    const articles = document.querySelectorAll(optArticleSelector);
+
+    for (const article of articles) {
+      const wrapper = article.querySelector(optArticleAuthorSelector);
+      if (!wrapper) continue;
+
+      const author = article.getAttribute('data-author') || '';
+      if (!author) {
+        wrapper.textContent = '';
+        continue;
+      }
+
+      const enc = encodeURIComponent(author);
+      wrapper.innerHTML = `by <a href="#author-${enc}" data-author="${author}">${author}</a>`;
+    }
   }
 
   /* ==========================================================
@@ -191,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const authorsList = document.querySelector(optAuthorsListSelector);
     if (!authorsList) return;
 
-    // Count how many times each tag appears across all articles
     const counts = new Map();
     const articles = document.querySelectorAll(optArticleSelector);
 
@@ -199,18 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const author = article.getAttribute('data-author') || '';
       if (!author) continue;
       counts.set(author, (counts.get(author) || 0) + 1);
-
-      // Make the author name inside the article clickable as well
-      const authorP = article.querySelector('.post-author');
-      if (authorP && !authorP.querySelector('a[data-author]')) {
-        const encoded = encodeURIComponent(author);
-        authorP.innerHTML = `by <a href="#author-${encoded}" data-author="${author}">${author}</a>`;
-        const link = authorP.querySelector('a[data-author]');
-        if (link) link.addEventListener('click', authorClickHandler);
-      }
     }
 
-    // Build alphabetical list with counters
     const items = Array.from(counts.entries())
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([author, count]) => {
@@ -220,11 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
       .join('');
 
     authorsList.innerHTML = items;
-
-    // attach click handlers to sidebar author links
-    authorsList.querySelectorAll('a[data-author]').forEach(a =>
-      a.addEventListener('click', authorClickHandler)
-    );
   }
 
   /* ==========================================================
@@ -232,25 +212,39 @@ document.addEventListener('DOMContentLoaded', () => {
      ========================================================== */
   function authorClickHandler(e) {
     e.preventDefault();
-    const author = this.dataset.author;
-    if (!author) return;
 
-    // Toggle active visuals for author links (sidebar + within posts)
+    const clickedElement = this;
+    const href = clickedElement.getAttribute('href');   // "#author-George%20Tuxedo"
+    const author = clickedElement.dataset.author || decodeURIComponent(href.replace('#author-', ''));
+
+    // remove "active" from ALL author links
     document
-      .querySelectorAll(`${optAuthorsListSelector} a.active, .post-author a.active`)
+      .querySelectorAll('a.active[href^="#author-"]')
       .forEach(a => a.classList.remove('active'));
-    this.classList.add('active');
 
-    // Filter the titles list by author
-    generateTitleLinks({ author });
+    // add "active" to ALL links for this author
+    document
+      .querySelectorAll(`a[href="${href}"]`)
+      .forEach(a => a.classList.add('active'));
+
+    // filter titles list by this author (note "=" not "~=")
+    generateTitleLinks(`[data-author="${author}"]`);
+  }
+
+  function addClickListenersToAuthors() {
+    document
+      .querySelectorAll('a[data-author]')
+      .forEach(link => link.addEventListener('click', authorClickHandler));
   }
 
   /* =========================
      Bootstrapping on load
      ========================= */
-  generateTitleLinks();     // initial titles list (all articles)
-  generateTags();           // fill article-level tag lists
-  generateTagsSidebar();    // build global tags with counters
-  generateAuthorsSidebar(); // build authors sidebar with counters
-  addClickListenersToTags();
-}); // closes DOMContentLoaded
+  generateTitleLinks();        // initial titles list (all articles)
+  generateTags();              // fill article-level tag lists
+  generateTagsSidebar();       // build global tags list
+  generateAuthors();           // fill author link in each article
+  generateAuthorsSidebar();    // build authors list with counters
+  addClickListenersToTags();   // attach tag click listeners (posts + sidebar)
+  addClickListenersToAuthors(); // attach author click listeners (posts + sidebar)
+});
