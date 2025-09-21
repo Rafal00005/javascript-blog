@@ -116,9 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // inject + click handlers
       tagsWrapper.innerHTML = html;
-      tagsWrapper.querySelectorAll('a[data-tag]').forEach(a =>
-        a.addEventListener('click', tagClickHandler)
-      );
+      
     }
   }
 
@@ -157,28 +155,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inject into the right sidebar
     tagList.innerHTML = items;
 
-    // Click behavior for sidebar tag links
-    tagList.querySelectorAll('a[data-tag]').forEach(a =>
-      a.addEventListener('click', tagClickHandler)
-    );
+   
   }
 
   /* ==========================================================
      Tag click handler (both inside articles and in sidebar)
      ========================================================== */
-  function tagClickHandler(e) {
-    e.preventDefault();
-    const tag = this.dataset.tag;
-    if (!tag) return;
+  function tagClickHandler(event) {
+    event.preventDefault();
+    
+    const clickedElement = this; // the <a> tou clicked
+    const href = clickedElement.getAttribute('href'); // e.g "#tag-design"
+    const tag = href.replace('#tag-' , ''); // e.g. "design"
+     
+    // 1) remove "active" from ALL tag links (both posts + sidebar)
+    document.querySelectorAll('a.active[data-tag]').forEach(a => a.classList.remove('active'));
+    
+    // 2) add "active" to ALL links that point to the same tag
+    document.querySelectorAll(`a[href="${href}"]`).forEach(a => a.classList.add('active'));
 
-    // Toggle active visuals on tag links (sidebar + inside posts)
-    document
-      .querySelectorAll(`${optTagListSelector} a.active, .post-tags a.active`)
-      .forEach(a => a.classList.remove('active'));
-    this.classList.add('active');
+    // 3) filter titles list by this tag
+    generateTitleLinks({tag});
+  }
 
-    // Filter the titles list to articles that have this tag
-    generateTitleLinks({ tag });
+  function addClickListenersToTags() {
+    document.querySelectorAll('[data-tag]').forEach(link =>
+      link.addEventListener('click' , tagClickHandler)
+    );
   }
 
   /* ==========================================================
@@ -188,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const authorsList = document.querySelector(optAuthorsListSelector);
     if (!authorsList) return;
 
+    // Count how many times each tag appears across all articles
     const counts = new Map();
     const articles = document.querySelectorAll(optArticleSelector);
 
@@ -248,4 +252,5 @@ document.addEventListener('DOMContentLoaded', () => {
   generateTags();           // fill article-level tag lists
   generateTagsSidebar();    // build global tags with counters
   generateAuthorsSidebar(); // build authors sidebar with counters
+  addClickListenersToTags();
 }); // closes DOMContentLoaded
