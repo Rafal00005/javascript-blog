@@ -3,13 +3,16 @@
 /* =========================
    Selectors / Options
    ========================= */
-const optArticleSelector = '.post';                // each article container
-const optTitleSelector = '.post-title';            // article title element
-const optTitleListSelector = '.titles';            // left sidebar list for titles
-const optTagListSelector = '.tags';                // right sidebar: global tags list
-const optAuthorsListSelector = '.authors';         // right sidebar: authors list
-const optArticleTagsSelector = '.post-tags .list'; // inside article: UL for its tags
-const optArticleAuthorSelector = '.post-author';   // inside article: wrapper for author
+const optArticleSelector = '.post';                 // each article container
+const optTitleSelector = '.post-title';             // article title element
+const optTitleListSelector = '.titles';             // left sidebar list for titles
+// const optTagListSelector = '.tags';              // !!! FIX: removed (unused)
+const optAuthorsListSelector = '.authors';          // right sidebar: authors list
+const optArticleTagsSelector = '.post-tags .list';  // inside article: UL for its tags
+const optArticleAuthorSelector = '.post-author';    // inside article: wrapper for author
+
+// !!! NEW: right sidebar UL for GLOBAL tags (needs both classes)
+const optTagsListSelector = '.tags.list';
 
 /* Run AFTER the DOM is ready */
 document.addEventListener('DOMContentLoaded', () => {
@@ -25,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // clear current list
     titleList.innerHTML = '';
 
-    // collect articles using attribute selector if provided
+    // !!! CHANGED: combine base selector with optional attribute filter
     const combinedSelector = optArticleSelector + customSelector;
     const articles = document.querySelectorAll(combinedSelector);
 
@@ -77,57 +80,47 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ==========================================================
-     Article-level tags: generate links inside each article
+     Article-level tags + UNIQUE tags list in the right sidebar
      ========================================================== */
+  // !!! CHANGED: this function now ALSO builds the unique tags list in the sidebar
   function generateTags() {
-    const articles = document.querySelectorAll(optArticleSelector);
+    const allTags = []; // !!! NEW: unique tag link snippets for the right sidebar
 
+    const articles = document.querySelectorAll(optArticleSelector);
     for (const article of articles) {
       const tagsWrapper = article.querySelector(optArticleTagsSelector);
       if (!tagsWrapper) continue;
 
-      const articleTags = article.getAttribute('data-tags') || '';
-      const articleTagsArray = articleTags.trim().split(/\s+/).filter(Boolean);
+      const tagsText = article.getAttribute('data-tags') || '';
+      const tags = tagsText.trim().split(/\s+/).filter(Boolean);
 
+      // build article-level tag links
       let html = '';
-      for (const tag of articleTagsArray) {
-        html += `<li><a href="#tag-${tag}" data-tag="${tag}">${tag}</a></li>`;
+      for (const tag of tags) {
+        const linkHTML = `<li><a href="#tag-${tag}" data-tag="${tag}">${tag}</a></li>`;
+        html += linkHTML;
+
+        // !!! NEW: remember unique link for the global list
+        if (allTags.indexOf(linkHTML) === -1) {
+          allTags.push(linkHTML);
+        }
       }
 
+      // inject article-level links
       tagsWrapper.innerHTML = html;
+    }
+
+    // !!! NEW: inject unique tags into the right sidebar
+    const tagList = document.querySelector(optTagsListSelector);
+    if (tagList) {
+      tagList.innerHTML = allTags.join(' ');
     }
   }
 
   /* ==========================================================
-     Right sidebar: global tags with occurrence counters
+     (REMOVED) Right sidebar tags with counters
      ========================================================== */
-  function generateTagsSidebar() {
-    const tagList = document.querySelector(optTagListSelector);
-    if (!tagList) return;
-
-    const counts = new Map();
-    const articles = document.querySelectorAll(optArticleSelector);
-
-    for (const article of articles) {
-      const tags = (article.getAttribute('data-tags') || '')
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
-
-      for (const tag of tags) {
-        counts.set(tag, (counts.get(tag) || 0) + 1);
-      }
-    }
-
-    const items = Array.from(counts.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([tag, count]) =>
-        `<li><a href="#tag-${tag}" data-tag="${tag}">${tag}</a> <span>(${count})</span></li>`
-      )
-      .join('');
-
-    tagList.innerHTML = items;
-  }
+  // !!! REMOVED: previous generateTagsSidebar() — logic moved into generateTags()
 
   /* ==========================================================
      Tag click handler (inside posts and in sidebar)
@@ -153,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateTitleLinks(`[data-tags~="${tag}"]`);
   }
 
+  // !!! ensure we add listeners after generateTags() populates both places
   function addClickListenersToTags() {
     document
       .querySelectorAll('a[data-tag]')
@@ -227,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .querySelectorAll(`a[href="${href}"]`)
       .forEach(a => a.classList.add('active'));
 
-    // filter titles list by this author (note "=" not "~=")
+    // filter titles list by this author (uses "=")
     generateTitleLinks(`[data-author="${author}"]`);
   }
 
@@ -240,11 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
   /* =========================
      Bootstrapping on load
      ========================= */
-  generateTitleLinks();        // initial titles list (all articles)
-  generateTags();              // fill article-level tag lists
-  generateTagsSidebar();       // build global tags list
-  generateAuthors();           // fill author link in each article
-  generateAuthorsSidebar();    // build authors list with counters
-  addClickListenersToTags();   // attach tag click listeners (posts + sidebar)
-  addClickListenersToAuthors(); // attach author click listeners (posts + sidebar)
+  generateTitleLinks();         // initial titles list (all articles)
+  generateTags();               // !!! CHANGED: builds article tags + unique sidebar tags
+  // generateTagsSidebar();     // !!! REMOVED: do not call; replaced by generateTags()
+  generateAuthors();            // author link in each article
+  generateAuthorsSidebar();     // authors list with counters
+  addClickListenersToTags();    // click handlers for tags (posts + sidebar)
+  addClickListenersToAuthors(); // click handlers for authors
 });
