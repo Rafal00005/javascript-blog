@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Oswald:400,600|Sacramento|Source+Sans+Pro:300&subset=latin-ext');
 
 /* Variables */
-
 $color-light: #fff;
 $color-dark: #444;
 
@@ -10,7 +9,6 @@ $font-header: 'Oswald', sans-serif;
 $font-text: 'Source Sans Pro', sans-serif;
 
 /* Global */
-
 *,
 *::before,
 *::after {
@@ -36,6 +34,7 @@ body {
 	text-transform: uppercase;
 	font-family: $font-header;
 	font-weight: 600;
+
 	span {
 		text-transform: none;
 		font-weight: 400;
@@ -44,7 +43,6 @@ body {
 }
 
 /* Layout */
-
 .wrapper {
 	display: flex;
 	margin-left: 10px;
@@ -68,7 +66,6 @@ body {
 }
 
 /* Logo */
-
 .logo {
 	font-family: $font-logo;
 	font-weight: 400;
@@ -78,11 +75,11 @@ body {
 }
 
 /* Lists */
-
 .list {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
+
 	.active {
 		font-weight: bold;
 	}
@@ -95,7 +92,6 @@ body {
 }
 
 /* Authors */
-
 .authors {
 	li {
 		margin-bottom: 12px;
@@ -103,9 +99,9 @@ body {
 }
 
 /* Post */
-
 .post {
 	display: none;
+
 	&.active {
 		display: block;
 	}
@@ -117,7 +113,58 @@ body {
 
 .post-tags {
 	display: flex;
+
 	p {
 		margin: 0 10px 0 0;
 	}
+}
+
+/* --- ADDITIONS: better spacing for tags --- */
+
+/* Inside posts: spacing between inline tag items */
+.post-tags .list.list-horizontal li {
+	margin-right: 8px; /* gap between tags */
+	margin-bottom: 4px; /* small vertical gap when wrapping to next line */
+}
+
+.post-tags .list.list-horizontal li:last-child {
+	margin-right: 0; /* no trailing gap */
+}
+
+/* --- TAG CLOUD (sidebar) --- */
+.tags.list {
+	list-style: none;
+	margin: 0;
+	padding: 12px 0 0 12px; // keep left padding so tags don't stick to border
+
+	li {
+		display: inline; /* show tags side by side */
+		margin: 0 0.5rem; /* spacing between tags */
+	}
+
+	a {
+		text-decoration: none;
+		transition: all 0.2s ease;
+	}
+}
+
+.tag-size-1 {
+	font-size: 80%;
+	color: #6c757d;
+}
+.tag-size-2 {
+	font-size: 100%;
+	color: #495057;
+}
+.tag-size-3 {
+	font-size: 120%;
+	color: #0d6efd;
+}
+.tag-size-4 {
+	font-size: 140%;
+	color: #198754;
+}
+.tag-size-5 {
+	font-size: 160%;
+	color: #dc3545;
 }
