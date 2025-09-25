@@ -1,23 +1,34 @@
 'use strict';
 
 /* =========================
-   Selectors / Options
+   Centralized settings options + selectors 
    ========================= */
-const optArticleSelector = '.post';                 // each article container
-const optTitleSelector = '.post-title';             // article title element
-const optTitleListSelector = '.titles';             // left sidebar list for titles
-const optAuthorsListSelector = '.authors';          // right sidebar: authors list
-const optArticleTagsSelector = '.post-tags .list';  // inside article: UL for its tags
-const optArticleAuthorSelector = '.post-author';    // inside article: wrapper for author
+const opts = {
+  tagSizes: {
+    count: 5,
+    classPrefix: 'tag-size-',
+  },
+};
 
-// NEW: right sidebar UL for GLOBAL tags (must have BOTH classes: "tags" and "list")
-const optTagsListSelector = '.tags.list';
-
-// NEW: number of CSS classes used for tag cloud sizing
-const optCloudClassCount = 5;
-
-// NEW: prefix for CSS class names applied to tags in cloud
-const optCloudClassPrefix = 'tag-size-';
+const select = {
+  all: {
+    articles: '.post',
+    linksTo: {
+      tags: 'a[href^="#tag-"]',
+      authors: 'a[href^="#author-"]',
+    },
+  },
+  article: {
+    title: '.post-title',
+    tags: '.post-tags .list',
+    author: '.post-author',
+  },
+  listOf: {
+    titles: '.titles',
+    tags: '.tags.list',
+    authors: '.authors', // u Ciebie to .authors (nie .authors.list)
+  },
+};
 
 /* ===============================================
    Helper to compute min/max counts for tags
@@ -35,11 +46,11 @@ function calculateTagsParams(tags) {
 // calculate CSS class for a tag based on its count and min/max params
 function calculateTagClass(count, params) {
   if (params.max === params.min) {
-    return optCloudClassPrefix + Math.ceil(optCloudClassCount / 2);
+    return opts.tagSizes.classPrefix + Math.ceil(opts.tagSizes.count / 2);
   }
   const normalized = (count - params.min) / (params.max - params.min);
-  const classNumber = Math.floor(normalized * (optCloudClassCount - 1) + 1);
-  return optCloudClassPrefix + classNumber;
+  const classNumber = Math.floor(normalized * (opts.tagSizes.count - 1) + 1);
+  return opts.tagSizes.classPrefix + classNumber;
 }
 
 /* Run AFTER the DOM is ready */
@@ -49,24 +60,24 @@ document.addEventListener('DOMContentLoaded', () => {
      Build the list of article titles (with optional filter)
      =============================================== */
   function generateTitleLinks(customSelector = '') {
-    const titleList = document.querySelector(optTitleListSelector);
+    const titleList = document.querySelector(select.listOf.titles);
     if (!titleList) return;
 
     titleList.innerHTML = '';
 
-    const combinedSelector = optArticleSelector + customSelector;
+    const combinedSelector = select.all.articles + customSelector;
     const articles = document.querySelectorAll(combinedSelector);
 
     let html = '';
     for (const article of articles) {
       const articleId = article.id;
-      const titleEl = article.querySelector(optTitleSelector);
+      const titleEl = article.querySelector(select.article.title);
       const articleTitle = (titleEl && titleEl.textContent) || articleId;
       html += `<li><a href="#${articleId}"><span>${articleTitle}</span></a></li>`;
     }
     titleList.innerHTML = html;
 
-    // make list clickable
+    // make title links clickable
     const links = titleList.querySelectorAll('a');
     links.forEach(link => link.addEventListener('click', titleClickHandler));
 
@@ -106,10 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
      ========================================================== */
   function generateTags() {
     const allTags = {}; // tag -> count
-    const articles = document.querySelectorAll(optArticleSelector);
+    const articles = document.querySelectorAll(select.all.articles);
 
     for (const article of articles) {
-      const tagsWrapper = article.querySelector(optArticleTagsSelector);
+      const tagsWrapper = article.querySelector(select.article.tags);
       if (!tagsWrapper) continue;
 
       const tagsText = article.getAttribute('data-tags') || '';
@@ -131,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tagsParams = calculateTagsParams(allTags);
     console.log('tagsParams:', tagsParams); // e.g. { max: 10, min: 2 }
 
-    const tagList = document.querySelector(optTagsListSelector);
+    const tagList = document.querySelector(select.listOf.tags);
     if (tagList) {
       // generate sidebar tag links with dynamic class
       const sidebarHTML = Object.entries(allTags)
@@ -167,9 +178,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ensure we add listeners after generateTags() populates both places
   function addClickListenersToTags() {
-    document.querySelectorAll('a[data-tag]').forEach(link =>
-      link.addEventListener('click', tagClickHandler)
-    );
+    document
+      .querySelectorAll('a[data-tag]')
+      .forEach(link => link.addEventListener('click', tagClickHandler));
   }
 
   /* ==========================================================
@@ -177,10 +188,10 @@ document.addEventListener('DOMContentLoaded', () => {
      ========================================================== */
   function generateAuthors() {
     const allAuthors = {};   // author -> count
-    const articles = document.querySelectorAll(optArticleSelector);
+    const articles = document.querySelectorAll(select.all.articles);
 
     for (const article of articles) {
-      const wrapper = article.querySelector(optArticleAuthorSelector);
+      const wrapper = article.querySelector(select.article.author);
       if (!wrapper) continue;
 
       const author = article.getAttribute('data-author') || '';
@@ -191,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // link inside the article
       const enc = encodeURIComponent(author);
-      // NOTE: correct attributes: href and data-author (no space before =, no dot)
+      // NOTE: correct attributes: href and data-author
       wrapper.innerHTML = `by <a href="#author-${enc}" data-author="${author}">${author}</a>`;
 
       // count for sidebar
@@ -199,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // build right sidebar authors list with counters
-    const authorsList = document.querySelector(optAuthorsListSelector);
+    const authorsList = document.querySelector(select.listOf.authors);
     if (authorsList) {
       const items = Object.entries(allAuthors)
         .sort((a, b) => a[0].localeCompare(b[0]))
