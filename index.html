@@ -19,9 +19,12 @@
 
           <!-- POSTS -->
           <section class="posts">
-            <article class="post active" id="article-1"
+            <article
+              class="post active"
+              id="article-1"
               data-author="Marion Berry"
-              data-tags="design tutorials news ux">
+              data-tags="design tutorials news ux"
+            >
               <h3 class="post-title">Article 1</h3>
               <p class="post-author">by Marion Berry</p>
               <div class="post-content">
@@ -33,9 +36,12 @@
               </div>
             </article>
 
-            <article class="post" id="article-2"
+            <article
+              class="post"
+              id="article-2"
               data-author="Theo Tabby"
-              data-tags="news code">
+              data-tags="news code"
+            >
               <h3 class="post-title">Article 2</h3>
               <p class="post-author">by Theo Tabby</p>
               <div class="post-content">
@@ -47,9 +53,12 @@
               </div>
             </article>
 
-            <article class="post" id="article-3"
+            <article
+              class="post"
+              id="article-3"
               data-author="George Tuxedo"
-              data-tags="news reviews design performance">
+              data-tags="news reviews design performance"
+            >
               <h3 class="post-title">Article 3</h3>
               <p class="post-author">by George Tuxedo</p>
               <div class="post-content">
@@ -76,6 +85,34 @@
       </div>
     </div>
 
+    <!-- Load Handlebars library before your own script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.0/handlebars.min.js"></script>
+
+    <!-- Handlebars templates -->
+    <script id="template-article-link" type="text/x-handlebars-template">
+      <li><a href="#{{id}}"><span>{{title}}</span></a></li>
+    </script>
+
+    <!-- Keep ONLY ONE tag-cloud template (unique ID) -->
+    <script id="template-tag-cloud-link" type="text/x-handlebars-template">
+      {{! One <li> per tag }}
+      {{#each tags}}
+        <li>
+          <a
+            href="#tag-{{tag}}"
+            data-tag="{{tag}}"
+            class="{{className}}"
+            title="{{count}} article(s) with this tag"
+            aria-label="{{tag}} ({{count}})"
+          >
+            {{tag}}
+            <span class="tag-count">({{count}})</span>
+          </a>
+        </li>
+      {{/each}}
+    </script>
+
+    <!-- my own script (must be loaded last) -->
     <script src="js/script.js"></script>
   </body>
 </html>

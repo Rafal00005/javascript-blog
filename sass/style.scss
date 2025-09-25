@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css?family=Oswald:400,600|Sacramento|Source+Sans+Pro:300&subset=latin-ext');
 
-/* Variables */
+/* ===================================
+   Variables
+   =================================== */
 $color-light: #fff;
 $color-dark: #444;
 
@@ -8,163 +10,216 @@ $font-logo: 'Sacramento', cursive;
 $font-header: 'Oswald', sans-serif;
 $font-text: 'Source Sans Pro', sans-serif;
 
-/* Global */
+/* Accents for tag cloud (can be tweaked) */
+$tag-gray-1: #6c757d;
+$tag-gray-2: #495057;
+$tag-blue:   #0d6efd;
+$tag-green:  #198754;
+$tag-red:    #dc3545;
+
+/* ===================================
+   Global
+   =================================== */
 *,
 *::before,
 *::after {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-	background: $color-light;
-	font-family: $font-text;
-	color: $color-dark;
-	font-weight: 300;
-	font-size: 16px;
-	line-height: 1.7;
+  background: $color-light;
+  font-family: $font-text;
+  color: $color-dark;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.7;
 }
 
 .container {
-	max-width: 1140px;
-	margin: 0 auto;
+  max-width: 1140px;
+  margin: 0 auto;
 }
 
 .section-title {
-	font-size: 22px;
-	text-transform: uppercase;
-	font-family: $font-header;
-	font-weight: 600;
+  font-size: 22px;
+  text-transform: uppercase;
+  font-family: $font-header;
+  font-weight: 600;
 
-	span {
-		text-transform: none;
-		font-weight: 400;
-		color: lighten($color-dark, 20%);
-	}
+  span {
+    text-transform: none;
+    font-weight: 400;
+    color: lighten($color-dark, 20%);
+  }
 }
 
-/* Layout */
+/* ===================================
+   Layout
+   =================================== */
 .wrapper {
-	display: flex;
-	margin-left: 10px;
+  display: flex;
+  margin-left: 10px;
 }
 
 .sidebar {
-	flex: 1 0 0;
+  flex: 1 0 0;
 }
 
 .posts {
-	flex: 2 0 0;
+  flex: 2 0 0;
 }
 
 .sidebar,
 .posts {
-	background: $color-light;
-	margin-right: 10px;
-	padding: 40px;
-	border: 1px solid $color-dark;
-	border-radius: 5px;
+  background: $color-light;
+  margin-right: 10px;
+  padding: 40px;
+  border: 1px solid $color-dark;
+  border-radius: 5px;
 }
 
-/* Logo */
+/* ===================================
+   Logo
+   =================================== */
 .logo {
-	font-family: $font-logo;
-	font-weight: 400;
-	font-size: 104px;
-	line-height: 1;
-	text-align: center;
+  font-family: $font-logo;
+  font-weight: 400;
+  font-size: 104px;
+  line-height: 1;
+  text-align: center;
 }
 
-/* Lists */
+/* ===================================
+   Lists
+   =================================== */
 .list {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 
-	.active {
-		font-weight: bold;
-	}
+  .active {
+    font-weight: bold;
+  }
 }
 
 .list-horizontal {
-	li {
-		display: inline-block;
-	}
+  li {
+    display: inline-block;
+  }
 }
 
-/* Authors */
+/* ===================================
+   Authors
+   =================================== */
 .authors {
-	li {
-		margin-bottom: 12px;
-	}
+  li {
+    margin-bottom: 12px;
+  }
 }
 
-/* Post */
+/* ===================================
+   Post
+   =================================== */
 .post {
-	display: none;
+  display: none;
 
-	&.active {
-		display: block;
-	}
+  &.active {
+    display: block;
+  }
 }
 
 .post-author {
-	font-style: italic;
+  font-style: italic;
 }
 
 .post-tags {
-	display: flex;
+  display: flex;
 
-	p {
-		margin: 0 10px 0 0;
-	}
+  p {
+    margin: 0 10px 0 0;
+  }
 }
 
-/* --- ADDITIONS: better spacing for tags --- */
+/* --- ADDITIONS: better spacing for tags inside posts --- */
+.post-tags .list.list-horizontal {
+  li {
+    margin-right: 8px;   /* gap between tags */
+    margin-bottom: 4px;  /* small vertical gap when wrapping to next line */
 
-/* Inside posts: spacing between inline tag items */
-.post-tags .list.list-horizontal li {
-	margin-right: 8px; /* gap between tags */
-	margin-bottom: 4px; /* small vertical gap when wrapping to next line */
+    &:last-child {
+      margin-right: 0;   /* no trailing gap */
+    }
+  }
 }
 
-.post-tags .list.list-horizontal li:last-child {
-	margin-right: 0; /* no trailing gap */
-}
-
-/* --- TAG CLOUD (sidebar) --- */
+/* ===================================
+   TAG CLOUD (sidebar)
+   =================================== */
+/* Container for the sidebar tag list */
 .tags.list {
-	list-style: none;
-	margin: 0;
-	padding: 12px 0 0 12px; // keep left padding so tags don't stick to border
+  list-style: none;
+  margin: 0;
+  padding: 12px 0 0 12px; // keep left padding so tags don't stick to border
 
-	li {
-		display: inline; /* show tags side by side */
-		margin: 0 0.5rem; /* spacing between tags */
-	}
+  li {
+    display: inline;       /* show tags side by side */
+    margin: 0 0.5rem;      /* spacing between tags */
+    line-height: 1.6;
+  }
 
-	a {
-		text-decoration: none;
-		transition: all 0.2s ease;
-	}
+  a {
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 4px;    /* subtle rounding for focus outline padding */
+    padding: 0 2px;        /* tiny padding to help focus outline */
+    display: inline-block; /* so focus outline wraps nicely */
+
+    /* Hover/Focus affordances */
+    &:hover {
+      text-decoration: underline;
+      opacity: 0.9;
+    }
+    &:focus {
+      outline: 2px solid rgba(0, 0, 0, 0.25);
+      outline-offset: 2px;
+    }
+  }
 }
 
-.tag-size-1 {
-	font-size: 80%;
-	color: #6c757d;
+/* Optional: the little count bubble next to the tag text */
+.tag-count {
+  opacity: 0.6;
+  font-size: 0.85em;
+  margin-left: 0.15em;
 }
-.tag-size-2 {
-	font-size: 100%;
-	color: #495057;
-}
-.tag-size-3 {
-	font-size: 120%;
-	color: #0d6efd;
-}
-.tag-size-4 {
-	font-size: 140%;
-	color: #198754;
-}
-.tag-size-5 {
-	font-size: 160%;
-	color: #dc3545;
+
+/* ===================================
+   Tag size classes (driven by JS)
+   These map to opts.tagSizes.count = 5 and classPrefix 'tag-size-'
+   =================================== */
+.tag-size-1 { font-size: 80%;  color: $tag-gray-1; }
+.tag-size-2 { font-size: 100%; color: $tag-gray-2; }
+.tag-size-3 { font-size: 120%; color: $tag-blue;   }
+.tag-size-4 { font-size: 140%; color: $tag-green;  }
+.tag-size-5 { font-size: 160%; color: $tag-red;    }
+
+/* ===================================
+   Responsive niceties (optional)
+   =================================== */
+@media (max-width: 900px) {
+  .wrapper {
+    flex-direction: column;
+    margin-left: 0;
+  }
+
+  .sidebar,
+  .posts {
+    margin-right: 0;
+    margin-bottom: 10px;
+    padding: 24px;
+  }
+
+  .logo {
+    font-size: 72px;
+  }
 }
