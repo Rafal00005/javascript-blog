@@ -6,33 +6,57 @@
 const optArticleSelector = '.post';                 // each article container
 const optTitleSelector = '.post-title';             // article title element
 const optTitleListSelector = '.titles';             // left sidebar list for titles
-// const optTagListSelector = '.tags';              // !!! FIX: removed (unused)
 const optAuthorsListSelector = '.authors';          // right sidebar: authors list
 const optArticleTagsSelector = '.post-tags .list';  // inside article: UL for its tags
 const optArticleAuthorSelector = '.post-author';    // inside article: wrapper for author
 
-// !!! NEW: right sidebar UL for GLOBAL tags (needs both classes)
+// NEW: right sidebar UL for GLOBAL tags (must have BOTH classes: "tags" and "list")
 const optTagsListSelector = '.tags.list';
+
+// NEW: number of CSS classes used for tag cloud sizing
+const optCloudClassCount = 5;
+
+// NEW: prefix for CSS class names applied to tags in cloud
+const optCloudClassPrefix = 'tag-size-';
+
+/* ===============================================
+   Helper to compute min/max counts for tags
+   =============================================== */
+function calculateTagsParams(tags) {
+  const params = { max: 0, min: 999999 }; // safe extremes
+  for (const tag in tags) {
+    const count = tags[tag];
+    if (count > params.max) params.max = count;
+    if (count < params.min) params.min = count;
+  }
+  return params;
+}
+
+// calculate CSS class for a tag based on its count and min/max params
+function calculateTagClass(count, params) {
+  if (params.max === params.min) {
+    return optCloudClassPrefix + Math.ceil(optCloudClassCount / 2);
+  }
+  const normalized = (count - params.min) / (params.max - params.min);
+  const classNumber = Math.floor(normalized * (optCloudClassCount - 1) + 1);
+  return optCloudClassPrefix + classNumber;
+}
 
 /* Run AFTER the DOM is ready */
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ===============================================
      Build the list of article titles (with optional filter)
-     Example: generateTitleLinks('[data-tags~="design"]')
      =============================================== */
   function generateTitleLinks(customSelector = '') {
     const titleList = document.querySelector(optTitleListSelector);
     if (!titleList) return;
 
-    // clear current list
     titleList.innerHTML = '';
 
-    // !!! CHANGED: combine base selector with optional attribute filter
     const combinedSelector = optArticleSelector + customSelector;
     const articles = document.querySelectorAll(combinedSelector);
 
-    // build HTML for the titles list
     let html = '';
     for (const article of articles) {
       const articleId = article.id;
@@ -42,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     titleList.innerHTML = html;
 
-    // make title links clickable
+    // make list clickable
     const links = titleList.querySelectorAll('a');
     links.forEach(link => link.addEventListener('click', titleClickHandler));
 
@@ -59,9 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ===============================================
-     Title click behavior: show the chosen article
-     =============================================== */
+  /* ====== Title click behavior : show the chosen article ====== */
   function titleClickHandler(e) {
     e.preventDefault();
 
@@ -74,19 +96,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.post.active').forEach(a => a.classList.remove('active'));
 
     // find & activate the target article
-    const selector = this.getAttribute('href'); // e.g. "#article-3"
+    const selector = this.getAttribute('href');
     const target = selector && document.querySelector(selector);
     if (target) target.classList.add('active');
   }
 
   /* ==========================================================
-     Article-level tags + UNIQUE tags list in the right sidebar
+     Article-level tags + tags list in the right sidebar
      ========================================================== */
-  // !!! CHANGED: this function now ALSO builds the unique tags list in the sidebar
   function generateTags() {
-    const allTags = []; // !!! NEW: unique tag link snippets for the right sidebar
-
+    const allTags = {}; // tag -> count
     const articles = document.querySelectorAll(optArticleSelector);
+
     for (const article of articles) {
       const tagsWrapper = article.querySelector(optArticleTagsSelector);
       if (!tagsWrapper) continue;
@@ -100,27 +121,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const linkHTML = `<li><a href="#tag-${tag}" data-tag="${tag}">${tag}</a></li>`;
         html += linkHTML;
 
-        // !!! NEW: remember unique link for the global list
-        if (allTags.indexOf(linkHTML) === -1) {
-          allTags.push(linkHTML);
-        }
+        // count for sidebar
+        allTags[tag] = (allTags[tag] || 0) + 1;
       }
-
-      // inject article-level links
       tagsWrapper.innerHTML = html;
     }
 
-    // !!! NEW: inject unique tags into the right sidebar
+    // compute extremes (min/max)
+    const tagsParams = calculateTagsParams(allTags);
+    console.log('tagsParams:', tagsParams); // e.g. { max: 10, min: 2 }
+
     const tagList = document.querySelector(optTagsListSelector);
     if (tagList) {
-      tagList.innerHTML = allTags.join(' ');
+      // generate sidebar tag links with dynamic class
+      const sidebarHTML = Object.entries(allTags)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([tag, count]) => {
+          const className = calculateTagClass(count, tagsParams);
+          return `<li><a href="#tag-${tag}" data-tag="${tag}" class="${className}">${tag}</a></li>`;
+        })
+        .join('');
+
+      tagList.innerHTML = sidebarHTML;
     }
   }
-
-  /* ==========================================================
-     (REMOVED) Right sidebar tags with counters
-     ========================================================== */
-  // !!! REMOVED: previous generateTagsSidebar() — logic moved into generateTags()
 
   /* ==========================================================
      Tag click handler (inside posts and in sidebar)
@@ -129,34 +153,30 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
 
     const clickedElement = this;
-    const href = clickedElement.getAttribute('href');   // "#tag-xyz"
-    const tag = href.replace('#tag-', '');              // "xyz"
+    const href = clickedElement.getAttribute('href');
+    const tag = href.replace('#tag-', '');
 
     // remove "active" from ALL tag links
-    document
-      .querySelectorAll('a.active[href^="#tag-"]')
-      .forEach(a => a.classList.remove('active'));
-
+    document.querySelectorAll('a.active[href^="#tag-"]').forEach(a => a.classList.remove('active'));
     // add "active" to ALL links that point to this tag
-    document
-      .querySelectorAll(`a[href="${href}"]`)
-      .forEach(a => a.classList.add('active'));
+    document.querySelectorAll(`a[href="${href}"]`).forEach(a => a.classList.add('active'));
 
     // filter titles list by this tag
     generateTitleLinks(`[data-tags~="${tag}"]`);
   }
 
-  // !!! ensure we add listeners after generateTags() populates both places
+  // ensure we add listeners after generateTags() populates both places
   function addClickListenersToTags() {
-    document
-      .querySelectorAll('a[data-tag]')
-      .forEach(link => link.addEventListener('click', tagClickHandler));
+    document.querySelectorAll('a[data-tag]').forEach(link =>
+      link.addEventListener('click', tagClickHandler)
+    );
   }
 
   /* ==========================================================
-     Article-level author: generate author link inside each article
+     Article-level author: generate author link + authors list in sidebar (with counts)
      ========================================================== */
   function generateAuthors() {
+    const allAuthors = {};   // author -> count
     const articles = document.querySelectorAll(optArticleSelector);
 
     for (const article of articles) {
@@ -169,36 +189,28 @@ document.addEventListener('DOMContentLoaded', () => {
         continue;
       }
 
+      // link inside the article
       const enc = encodeURIComponent(author);
+      // NOTE: correct attributes: href and data-author (no space before =, no dot)
       wrapper.innerHTML = `by <a href="#author-${enc}" data-author="${author}">${author}</a>`;
-    }
-  }
 
-  /* ==========================================================
-     Right sidebar: authors with occurrence counters
-     ========================================================== */
-  function generateAuthorsSidebar() {
+      // count for sidebar
+      allAuthors[author] = (allAuthors[author] || 0) + 1;
+    }
+
+    // build right sidebar authors list with counters
     const authorsList = document.querySelector(optAuthorsListSelector);
-    if (!authorsList) return;
+    if (authorsList) {
+      const items = Object.entries(allAuthors)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([author, count]) => {
+          const enc = encodeURIComponent(author);
+          return `<li><a href="#author-${enc}" data-author="${author}">${author}</a> <span>(${count})</span></li>`;
+        })
+        .join('');
 
-    const counts = new Map();
-    const articles = document.querySelectorAll(optArticleSelector);
-
-    for (const article of articles) {
-      const author = article.getAttribute('data-author') || '';
-      if (!author) continue;
-      counts.set(author, (counts.get(author) || 0) + 1);
+      authorsList.innerHTML = items;
     }
-
-    const items = Array.from(counts.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([author, count]) => {
-        const enc = encodeURIComponent(author);
-        return `<li><a href="#author-${enc}" data-author="${author}"><span class="author-name">${author}</span></a> <span>(${count})</span></li>`;
-      })
-      .join('');
-
-    authorsList.innerHTML = items;
   }
 
   /* ==========================================================
@@ -208,37 +220,31 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     const clickedElement = this;
-    const href = clickedElement.getAttribute('href');   // "#author-George%20Tuxedo"
+    const href = clickedElement.getAttribute('href');
     const author = clickedElement.dataset.author || decodeURIComponent(href.replace('#author-', ''));
 
     // remove "active" from ALL author links
-    document
-      .querySelectorAll('a.active[href^="#author-"]')
-      .forEach(a => a.classList.remove('active'));
+    document.querySelectorAll('a.active[href^="#author-"]').forEach(a => a.classList.remove('active'));
 
     // add "active" to ALL links for this author
-    document
-      .querySelectorAll(`a[href="${href}"]`)
-      .forEach(a => a.classList.add('active'));
+    document.querySelectorAll(`a[href="${href}"]`).forEach(a => a.classList.add('active'));
 
-    // filter titles list by this author (uses "=")
+    // filter titles list by this author
     generateTitleLinks(`[data-author="${author}"]`);
   }
 
   function addClickListenersToAuthors() {
-    document
-      .querySelectorAll('a[data-author]')
-      .forEach(link => link.addEventListener('click', authorClickHandler));
+    document.querySelectorAll('a[data-author]').forEach(link =>
+      link.addEventListener('click', authorClickHandler)
+    );
   }
 
   /* =========================
      Bootstrapping on load
      ========================= */
-  generateTitleLinks();         // initial titles list (all articles)
-  generateTags();               // !!! CHANGED: builds article tags + unique sidebar tags
-  // generateTagsSidebar();     // !!! REMOVED: do not call; replaced by generateTags()
-  generateAuthors();            // author link in each article
-  generateAuthorsSidebar();     // authors list with counters
-  addClickListenersToTags();    // click handlers for tags (posts + sidebar)
-  addClickListenersToAuthors(); // click handlers for authors
+  generateTitleLinks();
+  generateTags();
+  generateAuthors();
+  addClickListenersToTags();
+  addClickListenersToAuthors();
 });
