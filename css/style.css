@@ -1,9 +1,7 @@
 @import url("https://fonts.googleapis.com/css?family=Oswald:400,600|Sacramento|Source+Sans+Pro:300&subset=latin-ext");
 /* Variables */
 /* Global */
-*,
-*::before,
-*::after {
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
@@ -27,16 +25,11 @@ body {
   font-family: "Oswald", sans-serif;
   font-weight: 600;
 }
-.section-title span {
-  text-transform: none;
-  font-weight: 400;
-  color: #777777;
-}
 
 /* Layout */
 .wrapper {
   display: flex;
-  margin-left: 10px;
+  gap: 10px;
 }
 
 .sidebar {
@@ -47,11 +40,9 @@ body {
   flex: 2 0 0;
 }
 
-.sidebar,
-.posts {
+.sidebar, .posts {
   background: #fff;
-  margin-right: 10px;
-  padding: 40px;
+  padding: 24px;
   border: 1px solid #444;
   border-radius: 5px;
 }
@@ -60,47 +51,87 @@ body {
 .logo {
   font-family: "Sacramento", cursive;
   font-weight: 400;
-  font-size: 104px;
+  font-size: 72px;
   line-height: 1;
   text-align: center;
 }
 
 /* Lists */
 .list {
-  list-style-type: none;
+  list-style: none;
   margin: 0;
   padding: 0;
 }
+
 .list .active {
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .list-horizontal li {
   display: inline-block;
 }
 
-/* Authors */
 .authors li {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 /* Post */
 .post {
   display: none;
 }
+
 .post.active {
   display: block;
 }
 
 .post-author {
   font-style: italic;
+  margin: 4px 0 12px;
 }
 
 .post-tags {
   display: flex;
-}
-.post-tags p {
-  margin: 0 10px 0 0;
+  gap: 10px;
+  align-items: center;
 }
 
-/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInN0eWxlLmNzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSIsImZpbGUiOiJzdHlsZS5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyJAaW1wb3J0IHVybChcImh0dHBzOi8vZm9udHMuZ29vZ2xlYXBpcy5jb20vY3NzP2ZhbWlseT1Pc3dhbGQ6NDAwLDYwMHxTYWNyYW1lbnRvfFNvdXJjZStTYW5zK1BybzozMDAmc3Vic2V0PWxhdGluLWV4dFwiKTtcbi8qIFZhcmlhYmxlcyAqL1xuLyogR2xvYmFsICovXG4qLFxuKjo6YmVmb3JlLFxuKjo6YWZ0ZXIge1xuICBib3gtc2l6aW5nOiBib3JkZXItYm94O1xufVxuXG5ib2R5IHtcbiAgYmFja2dyb3VuZDogI2ZmZjtcbiAgZm9udC1mYW1pbHk6IFwiU291cmNlIFNhbnMgUHJvXCIsIHNhbnMtc2VyaWY7XG4gIGNvbG9yOiAjNDQ0O1xuICBmb250LXdlaWdodDogMzAwO1xuICBmb250LXNpemU6IDE2cHg7XG4gIGxpbmUtaGVpZ2h0OiAxLjc7XG59XG5cbi5jb250YWluZXIge1xuICBtYXgtd2lkdGg6IDExNDBweDtcbiAgbWFyZ2luOiAwIGF1dG87XG59XG5cbi5zZWN0aW9uLXRpdGxlIHtcbiAgZm9udC1zaXplOiAyMnB4O1xuICB0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlO1xuICBmb250LWZhbWlseTogXCJPc3dhbGRcIiwgc2Fucy1zZXJpZjtcbiAgZm9udC13ZWlnaHQ6IDYwMDtcbn1cbi5zZWN0aW9uLXRpdGxlIHNwYW4ge1xuICB0ZXh0LXRyYW5zZm9ybTogbm9uZTtcbiAgZm9udC13ZWlnaHQ6IDQwMDtcbiAgY29sb3I6ICM3Nzc3Nzc7XG59XG5cbi8qIExheW91dCAqL1xuLndyYXBwZXIge1xuICBkaXNwbGF5OiBmbGV4O1xuICBtYXJnaW4tbGVmdDogMTBweDtcbn1cblxuLnNpZGViYXIge1xuICBmbGV4OiAxIDAgMDtcbn1cblxuLnBvc3RzIHtcbiAgZmxleDogMiAwIDA7XG59XG5cbi5zaWRlYmFyLFxuLnBvc3RzIHtcbiAgYmFja2dyb3VuZDogI2ZmZjtcbiAgbWFyZ2luLXJpZ2h0OiAxMHB4O1xuICBwYWRkaW5nOiA0MHB4O1xuICBib3JkZXI6IDFweCBzb2xpZCAjNDQ0O1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG59XG5cbi8qIExvZ28gKi9cbi5sb2dvIHtcbiAgZm9udC1mYW1pbHk6IFwiU2FjcmFtZW50b1wiLCBjdXJzaXZlO1xuICBmb250LXdlaWdodDogNDAwO1xuICBmb250LXNpemU6IDEwNHB4O1xuICBsaW5lLWhlaWdodDogMTtcbiAgdGV4dC1hbGlnbjogY2VudGVyO1xufVxuXG4vKiBMaXN0cyAqL1xuLmxpc3Qge1xuICBsaXN0LXN0eWxlLXR5cGU6IG5vbmU7XG4gIG1hcmdpbjogMDtcbiAgcGFkZGluZzogMDtcbn1cbi5saXN0IC5hY3RpdmUge1xuICBmb250LXdlaWdodDogYm9sZDtcbn1cblxuLmxpc3QtaG9yaXpvbnRhbCBsaSB7XG4gIGRpc3BsYXk6IGlubGluZS1ibG9jaztcbn1cblxuLyogQXV0aG9ycyAqL1xuLmF1dGhvcnMgbGkge1xuICBtYXJnaW4tYm90dG9tOiAxMnB4O1xufVxuXG4vKiBQb3N0ICovXG4ucG9zdCB7XG4gIGRpc3BsYXk6IG5vbmU7XG59XG4ucG9zdC5hY3RpdmUge1xuICBkaXNwbGF5OiBibG9jaztcbn1cblxuLnBvc3QtYXV0aG9yIHtcbiAgZm9udC1zdHlsZTogaXRhbGljO1xufVxuXG4ucG9zdC10YWdzIHtcbiAgZGlzcGxheTogZmxleDtcbn1cbi5wb3N0LXRhZ3MgcCB7XG4gIG1hcmdpbjogMCAxMHB4IDAgMDtcbn1cbiJdfQ== */
+.post-tags .list.list-horizontal li {
+  margin-right: 8px;
+}
+
+/* Tag cloud */
+.tags.list {
+  padding-left: 12px;
+}
+.tags.list li {
+  display: inline;
+  margin-right: 0.5rem;
+}
+
+/* Tag sizes (5 klas) */
+.tag-size-1 {
+  font-size: 80%;
+}
+
+.tag-size-2 {
+  font-size: 100%;
+}
+
+.tag-size-3 {
+  font-size: 120%;
+}
+
+.tag-size-4 {
+  font-size: 140%;
+}
+
+.tag-size-5 {
+  font-size: 160%;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .wrapper {
+    flex-direction: column;
+  }
+}

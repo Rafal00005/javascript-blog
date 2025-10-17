@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Oswald:400,600|Sacramento|Source+Sans+Pro:300&subset=latin-ext');
 
-/* ===================================
-   Variables
-   =================================== */
+/* Variables */
 $color-light: #fff;
 $color-dark: #444;
 
@@ -10,21 +8,8 @@ $font-logo: 'Sacramento', cursive;
 $font-header: 'Oswald', sans-serif;
 $font-text: 'Source Sans Pro', sans-serif;
 
-/* Accents for tag cloud (can be tweaked) */
-$tag-gray-1: #6c757d;
-$tag-gray-2: #495057;
-$tag-blue:   #0d6efd;
-$tag-green:  #198754;
-$tag-red:    #dc3545;
-
-/* ===================================
-   Global
-   =================================== */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+/* Global */
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   background: $color-light;
@@ -35,191 +20,65 @@ body {
   line-height: 1.7;
 }
 
-.container {
-  max-width: 1140px;
-  margin: 0 auto;
-}
+.container { max-width: 1140px; margin: 0 auto; }
 
 .section-title {
   font-size: 22px;
   text-transform: uppercase;
   font-family: $font-header;
   font-weight: 600;
-
-  span {
-    text-transform: none;
-    font-weight: 400;
-    color: lighten($color-dark, 20%);
-  }
 }
 
-/* ===================================
-   Layout
-   =================================== */
-.wrapper {
-  display: flex;
-  margin-left: 10px;
-}
+/* Layout */
+.wrapper { display: flex; gap: 10px; }
+.sidebar { flex: 1 0 0; }
+.posts   { flex: 2 0 0; }
 
-.sidebar {
-  flex: 1 0 0;
-}
-
-.posts {
-  flex: 2 0 0;
-}
-
-.sidebar,
-.posts {
+.sidebar, .posts {
   background: $color-light;
-  margin-right: 10px;
-  padding: 40px;
+  padding: 24px;
   border: 1px solid $color-dark;
   border-radius: 5px;
 }
 
-/* ===================================
-   Logo
-   =================================== */
+/* Logo */
 .logo {
   font-family: $font-logo;
   font-weight: 400;
-  font-size: 104px;
+  font-size: 72px;
   line-height: 1;
   text-align: center;
 }
 
-/* ===================================
-   Lists
-   =================================== */
-.list {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
+/* Lists */
+.list { list-style: none; margin: 0; padding: 0; }
+.list .active { font-weight: 600; }
+.list-horizontal li { display: inline-block; }
 
-  .active {
-    font-weight: bold;
-  }
-}
+.authors li { margin-bottom: 8px; }
 
-.list-horizontal {
-  li {
-    display: inline-block;
-  }
-}
+/* Post */
+.post { display: none; }
+.post.active { display: block; }
+.post-author { font-style: italic; margin: 4px 0 12px; }
 
-/* ===================================
-   Authors
-   =================================== */
-.authors {
-  li {
-    margin-bottom: 12px;
-  }
-}
+.post-tags { display: flex; gap: 10px; align-items: center; }
+.post-tags .list.list-horizontal li { margin-right: 8px; }
 
-/* ===================================
-   Post
-   =================================== */
-.post {
-  display: none;
-
-  &.active {
-    display: block;
-  }
-}
-
-.post-author {
-  font-style: italic;
-}
-
-.post-tags {
-  display: flex;
-
-  p {
-    margin: 0 10px 0 0;
-  }
-}
-
-/* --- ADDITIONS: better spacing for tags inside posts --- */
-.post-tags .list.list-horizontal {
-  li {
-    margin-right: 8px;   /* gap between tags */
-    margin-bottom: 4px;  /* small vertical gap when wrapping to next line */
-
-    &:last-child {
-      margin-right: 0;   /* no trailing gap */
-    }
-  }
-}
-
-/* ===================================
-   TAG CLOUD (sidebar)
-   =================================== */
-/* Container for the sidebar tag list */
+/* Tag cloud */
 .tags.list {
-  list-style: none;
-  margin: 0;
-  padding: 12px 0 0 12px; // keep left padding so tags don't stick to border
-
-  li {
-    display: inline;       /* show tags side by side */
-    margin: 0 0.5rem;      /* spacing between tags */
-    line-height: 1.6;
-  }
-
-  a {
-    text-decoration: none;
-    transition: all 0.2s ease;
-    border-radius: 4px;    /* subtle rounding for focus outline padding */
-    padding: 0 2px;        /* tiny padding to help focus outline */
-    display: inline-block; /* so focus outline wraps nicely */
-
-    /* Hover/Focus affordances */
-    &:hover {
-      text-decoration: underline;
-      opacity: 0.9;
-    }
-    &:focus {
-      outline: 2px solid rgba(0, 0, 0, 0.25);
-      outline-offset: 2px;
-    }
-  }
+  padding-left: 12px;
+  li { display: inline; margin-right: .5rem; }
 }
 
-/* Optional: the little count bubble next to the tag text */
-.tag-count {
-  opacity: 0.6;
-  font-size: 0.85em;
-  margin-left: 0.15em;
-}
+/* Tag sizes (5 klas) */
+.tag-size-1 { font-size: 80%; }
+.tag-size-2 { font-size: 100%; }
+.tag-size-3 { font-size: 120%; }
+.tag-size-4 { font-size: 140%; }
+.tag-size-5 { font-size: 160%; }
 
-/* ===================================
-   Tag size classes (driven by JS)
-   These map to opts.tagSizes.count = 5 and classPrefix 'tag-size-'
-   =================================== */
-.tag-size-1 { font-size: 80%;  color: $tag-gray-1; }
-.tag-size-2 { font-size: 100%; color: $tag-gray-2; }
-.tag-size-3 { font-size: 120%; color: $tag-blue;   }
-.tag-size-4 { font-size: 140%; color: $tag-green;  }
-.tag-size-5 { font-size: 160%; color: $tag-red;    }
-
-/* ===================================
-   Responsive niceties (optional)
-   =================================== */
+/* Responsive */
 @media (max-width: 900px) {
-  .wrapper {
-    flex-direction: column;
-    margin-left: 0;
-  }
-
-  .sidebar,
-  .posts {
-    margin-right: 0;
-    margin-bottom: 10px;
-    padding: 24px;
-  }
-
-  .logo {
-    font-size: 72px;
-  }
+  .wrapper { flex-direction: column; }
 }
